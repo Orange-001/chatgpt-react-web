@@ -1,0 +1,13 @@
+/build/*
+.local
+.output.js
+/node_modules/**
+
+**/*.svg
+**/*.sh
+
+/public/*
+
+pnpm-lock.yaml
+auto-imports.d.ts
+components.d.ts
