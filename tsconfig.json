@@ -16,12 +16,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["**/*.ts",
-    "**/*.d.ts",
-    "**/*.tsx",],
-  "exclude": [
-    "node_modules",
-    "./public",
-    "build"
-  ],
+  "include": ["**/*.ts", "**/*.d.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "./public", "build"]
 }
