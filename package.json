@@ -51,13 +51,11 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
-    "@iconify-json/ic": "^1.1.14",
-    "@unocss/webpack": "^0.57.6",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
     "prettier": "^3.1.0",
     "styled-components": "^6.1.1",
-    "unocss": "^0.57.6"
+    "tailwindcss": "^3.3.5"
   }
 }
