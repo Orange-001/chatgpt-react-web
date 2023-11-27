@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from './store';
 import { Button, Space, Input, Form, message } from 'antd';
 import { decrement, increment } from './store/features/counter';
-import axios from 'axios';
+import request from './services';
 
 function App() {
   const { value: counterValue } = useSelector((state: RootState) => state.counter);
@@ -26,31 +26,25 @@ function App() {
   const onFinish = async (values: FieldType) => {
     if (values.message) {
       setResult(values.message);
-      // const openaiApiKey = 'your key';
-      // const data = {
-      //   model: 'gpt-3.5-turbo',
-      //   messages: [
-      //     {
-      //       role: 'user',
-      //       content: values.message
-      //     }
-      //   ]
-      // };
+      const data = {
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'user',
+            content: values.message
+          }
+        ]
+      };
 
-      // const headers = {
-      //   'Content-Type': 'application/json',
-      //   Authorization: `Bearer ${openaiApiKey}`
-      // };
-
-      // axios
-      //   .post('https://api.aigc369.com/v1/chat/completions', data, { headers })
-      //   .then((response) => {
-      //     console.log(response.data);
-      //     setResult(response.data.choices[0].message.content);
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
+      request
+        .post('v1/chat/completions', data)
+        .then((response) => {
+          console.log(response.data);
+          setResult(response.data.choices[0].message.content);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     } else {
       message.warning('Please Input your message!');
     }
