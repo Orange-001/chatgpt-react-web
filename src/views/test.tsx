@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { NavLink, useRoutes } from 'react-router-dom';
 import routes from '@/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,7 +8,7 @@ import { decrement, increment } from '@/store/features/counter';
 import request from '@/services';
 import type { UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import axios, { AxiosProgressEvent } from 'axios';
+import type { AxiosProgressEvent } from 'axios';
 
 const Test: FC = () => {
   const { value: counterValue } = useSelector((state: RootState) => state.counter);
@@ -17,8 +17,13 @@ const Test: FC = () => {
   type FieldType = {
     message?: string;
   };
+  type Message = {
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+  };
+
   const [form] = Form.useForm();
-  // const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [result, setResult] = useState('');
 
   const onMessageKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -28,13 +33,7 @@ const Test: FC = () => {
   };
 
   const onFinish = async (values: FieldType) => {
-    interface Chunk {
-      choices: { delta: { role?: string; content: string } }[];
-    }
     if (values.message) {
-      // const newMessages = [...messages, values.message].slice(-4);
-      // setMessages(newMessages);
-
       const data = {
         model: 'gpt-3.5-turbo',
         messages: [
@@ -46,53 +45,41 @@ const Test: FC = () => {
         stream: true
       };
 
-      const { REACT_APP_BASE_URL, REACT_APP_OPENAI_KEY } = process.env;
-
-      // 如果需要关闭 SSE 连接，可以使用以下代码
-      // eventSource.close()
-
       const controller = new AbortController();
-      axios
-        .create({
-          baseURL: REACT_APP_BASE_URL,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${REACT_APP_OPENAI_KEY}`
-          },
-          timeout: 60000,
+      request
+        .post('v1/chat/completions', data, {
+          // warnning: xhr.js:218 The provided value 'stream' is not a valid enum value of type XMLHttpRequestResponseType.
           responseType: 'stream',
           onDownloadProgress: function (progressEvent: AxiosProgressEvent) {
-            console.log(progressEvent.event.currentTarget.responseText);
+            const responseText: string = progressEvent.event.currentTarget.responseText;
+            console.log(responseText);
+
+            // 通过正则表达式提取每个部分的 "content"
+            const regex = /"content":"([^"]*)"/g;
+            const matches = [...(responseText.matchAll(regex) as any)];
+
+            // 将所有匹配的 "content" 拼接成一个新的字符串
+            const resultString = matches.map((match) => match[1]).join('');
+
+            setResult(resultString);
           },
           signal: controller.signal
         })
-        .post('v1/chat/completions', data)
         .then((response) => {
-          console.log(response);
+          // console.log(response.data);
+
+          const userMessage: Message = { role: 'user', content: values.message as string };
+          const assistantMessage: Message = {
+            role: 'assistant',
+            // error: 没有获取到最新的result
+            content: result
+          };
+          const newMessages = [...messages, userMessage, assistantMessage].slice(-4);
+          setMessages(newMessages);
         })
         .catch((error) => {
           console.error(error);
         });
-
-      // request
-      //   .post('v1/chat/completions', data)
-      //   .then((response) => {
-      //     console.log(response.data);
-      //     response.data.on('data', (chunk: Chunk) => {
-      //       // 处理流数据的逻辑
-      //       console.log('chunk', chunk);
-      //       const content = chunk.choices[0].delta.content;
-      //       setResult((r) => r + content);
-      //     });
-
-      //     response.data.on('end', (end: any) => {
-      //       // 数据接收完成的逻辑
-      //       console.log('end', end);
-      //     });
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
     } else {
       message.warning('Please Input your message!');
     }
@@ -143,7 +130,11 @@ const Test: FC = () => {
           />
         </Form.Item>
       </Form>
-      <p>{result}</p>
+      <div>
+        {messages.map((v, i) => {
+          return <p key={i}>{`${v.role}: ${v.content}`}</p>;
+        })}
+      </div>
 
       <Upload {...props}>
         <Button icon={<UploadOutlined />}>Click to Upload</Button>

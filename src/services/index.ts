@@ -8,8 +8,7 @@ const request = axios.create({
   headers: {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${REACT_APP_OPENAI_KEY}`
-  },
-  timeout: 60000
+  }
 });
 
 request.interceptors.request.use(
