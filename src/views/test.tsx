@@ -52,34 +52,79 @@ const Test: FC = () => {
       };
 
       // 方式一： axios
-      request
-        .post('v1/chat/completions', data, {
-          // warnning: xhr.js:218 The provided value 'stream' is not a valid enum value of type XMLHttpRequestResponseType.
-          responseType: 'stream',
-          onDownloadProgress: function (progressEvent: AxiosProgressEvent) {
-            const responseText: string = progressEvent.event.currentTarget.responseText;
+      try {
+        // await request.post('v1/chat/completions', data, {
+        //   // warnning: xhr.js:218 The provided value 'stream' is not a valid enum value of type XMLHttpRequestResponseType.
+        //   responseType: 'stream',
+        //   onDownloadProgress: function (progressEvent: AxiosProgressEvent) {
+        //     const responseText: string = progressEvent.event.currentTarget.responseText;
 
-            // 通过正则表达式提取每个部分的 "content"
-            const regex = /"content":"([^"]*)"/g;
-            const matches = [...(responseText.matchAll(regex) as any)];
+        //     // 通过正则表达式提取每个部分的 "content"
+        //     const regex = /"content":"([^"]*)"/g;
+        //     const matches = [...(responseText.matchAll(regex) as any)];
 
-            // 将所有匹配的 "content" 拼接成一个新的字符串
-            const latestReplyTemp = matches.map((match) => match[1]).join('');
+        //     // 将所有匹配的 "content" 拼接成一个新的字符串
+        //     const latestReplyTemp = matches.map((match) => match[1]).join('');
 
-            const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: latestReplyTemp };
-            messagesTemp[latestReplyIndex] = { ...assistantMessageTemp };
-            const messagesTemp2 = messagesTemp.slice(-MAX_SEND_MESSAGES_COUNT);
-            setMessages(messagesTemp2);
+        //     const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: latestReplyTemp };
+        //     messagesTemp[latestReplyIndex] = { ...assistantMessageTemp };
+        //     const messagesTemp2 = messagesTemp.slice(-MAX_SEND_MESSAGES_COUNT);
+        //     setMessages(messagesTemp2);
 
-            // 数据接收完毕
-            // if (responseText.endsWith('data: [DONE]\n\n')) {
-            // }
+        //     // 数据接收完毕
+        //     // if (responseText.endsWith('data: [DONE]\n\n')) {
+        //     // }
+        //   },
+        //   signal: controller.signal
+        // });
+
+        // 方式一： fetch
+        const { REACT_APP_BASE_URL, REACT_APP_OPENAI_KEY } = process.env;
+        const res = await fetch(`${REACT_APP_BASE_URL}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${REACT_APP_OPENAI_KEY}`
           },
+          body: JSON.stringify(data),
           signal: controller.signal
-        })
-        .catch((error) => {
-          console.error(error);
         });
+        if (res.status === 200 && res.body) {
+          const body = res.body;
+          const reader = body.getReader();
+          let responseText = '';
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            // 3. 读取分块数据，返回一个 Promise
+            // （如果分块可用，Promise 返回 { value: theChunk, done: false } 形式）
+            // （如果流已关闭，Promise 返回 { value: undefined, done: true } 形式）
+            const { value, done } = await reader.read();
+            if (done) {
+              console.log('done: ', responseText);
+              const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: responseText };
+              messagesTemp[latestReplyIndex] = { ...assistantMessageTemp };
+              const messagesTemp2 = messagesTemp.slice(-MAX_SEND_MESSAGES_COUNT);
+              setMessages(messagesTemp2);
+              break;
+            } else {
+              // 4. 将分块数据转换为 string
+              const responseTextPart = new TextDecoder().decode(value);
+
+              // 通过正则表达式提取每个部分的 "content"
+              const regex = /"content":"([^"]*)"/g;
+              const matches = [...(responseTextPart.matchAll(regex) as any)];
+
+              // 将所有匹配的 "content" 拼接成一个新的字符串
+              const latestReplyPartTemp = matches.map((match) => match[1]).join('');
+              responseText += latestReplyPartTemp;
+            }
+          }
+        } else {
+          Promise.reject(res);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     } else {
       message.warning('Please Input your message!');
     }
