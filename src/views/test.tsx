@@ -29,8 +29,6 @@ const Test: FC = () => {
 
   const [form] = Form.useForm();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [latestReply, setLatestReply] = useState('');
-  const [isFetching, setIsFetching] = useState(false);
 
   const onMessageKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.ctrlKey && e.key === 'Enter') {
@@ -40,12 +38,12 @@ const Test: FC = () => {
 
   const onFinish = async (values: FieldType) => {
     if (values.message) {
-      const MAX_SEND_MESSAGES_COUNT = 4;
+      const MAX_SEND_MESSAGES_COUNT = 6;
       const controller = new AbortController();
       const userMessageTemp: Message = { role: Role.USER, content: values.message };
       const messagesTemp = [...messages, userMessageTemp].slice(-MAX_SEND_MESSAGES_COUNT);
+      const latestReplyIndex = messagesTemp.length;
       setMessages(messagesTemp);
-      setIsFetching(true);
 
       const data = {
         model: 'gpt-3.5-turbo',
@@ -68,21 +66,19 @@ const Test: FC = () => {
             // 将所有匹配的 "content" 拼接成一个新的字符串
             const latestReplyTemp = matches.map((match) => match[1]).join('');
 
-            setLatestReply(latestReplyTemp);
+            const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: latestReplyTemp };
+            messagesTemp[latestReplyIndex] = { ...assistantMessageTemp };
+            const messagesTemp2 = messagesTemp.slice(-MAX_SEND_MESSAGES_COUNT);
+            setMessages(messagesTemp2);
 
             // 数据接收完毕
-            if (responseText.endsWith('data: [DONE]\n\n')) {
-              const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: latestReplyTemp };
-              const messagesTemp = [...messages, assistantMessageTemp].slice(-MAX_SEND_MESSAGES_COUNT);
-              setMessages(messagesTemp);
-              setIsFetching(false);
-            }
+            // if (responseText.endsWith('data: [DONE]\n\n')) {
+            // }
           },
           signal: controller.signal
         })
         .catch((error) => {
           console.error(error);
-          setIsFetching(false);
         });
     } else {
       message.warning('Please Input your message!');
@@ -139,7 +135,6 @@ const Test: FC = () => {
         {messages.map((v, i) => {
           return <p key={i}>{`${v.role}: ${v.content}`}</p>;
         })}
-        {isFetching && <p>{`assistant: ${latestReply}`}</p>}
       </div>
 
       <Upload {...props}>
