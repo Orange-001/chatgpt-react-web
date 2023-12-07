@@ -1,6 +1,5 @@
 import React, { FC, useState } from 'react';
 import { NavLink, useRoutes } from 'react-router-dom';
-import routes from '@/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { Button, Space, Input, Form, message, Upload } from 'antd';
@@ -10,6 +9,7 @@ import type { UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { AxiosProgressEvent } from 'axios';
 import { EventStreamContentType, fetchEventSource } from '@fortaine/fetch-event-source';
+import routes from '@/router';
 
 const Test: FC = () => {
   const { value: counterValue } = useSelector((state: RootState) => state.counter);
