@@ -5,6 +5,7 @@
   "packageManager": "pnpm@8.9.2",
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@fortaine/fetch-event-source": "^3.0.6",
     "@reduxjs/toolkit": "^1.9.7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
