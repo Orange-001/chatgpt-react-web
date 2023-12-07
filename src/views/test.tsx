@@ -51,8 +51,8 @@ const Test: FC = () => {
         stream: true
       };
 
-      // 方式一： axios
       try {
+        // 方式一： axios
         // await request.post('v1/chat/completions', data, {
         //   // warnning: xhr.js:218 The provided value 'stream' is not a valid enum value of type XMLHttpRequestResponseType.
         //   responseType: 'stream',
@@ -61,7 +61,7 @@ const Test: FC = () => {
 
         //     // 通过正则表达式提取每个部分的 "content"
         //     const regex = /"content":"([^"]*)"/g;
-        //     const matches = [...(responseText.matchAll(regex) as any)];
+        //     const matches = [...responseText.matchAll(regex)];
 
         //     // 将所有匹配的 "content" 拼接成一个新的字符串
         //     const latestReplyTemp = matches.map((match) => match[1]).join('');
@@ -78,7 +78,7 @@ const Test: FC = () => {
         //   signal: controller.signal
         // });
 
-        // 方式一： fetch
+        // 方式二： fetch
         const { REACT_APP_BASE_URL, REACT_APP_OPENAI_KEY } = process.env;
         const res = await fetch(`${REACT_APP_BASE_URL}/v1/chat/completions`, {
           method: 'POST',
@@ -92,31 +92,31 @@ const Test: FC = () => {
         if (res.status === 200 && res.body) {
           const body = res.body;
           const reader = body.getReader();
-          let responseText = '';
+          let latestReplyTemp = '';
           // eslint-disable-next-line no-constant-condition
           while (true) {
-            // 3. 读取分块数据，返回一个 Promise
+            // 读取分块数据，返回一个 Promise
             // （如果分块可用，Promise 返回 { value: theChunk, done: false } 形式）
             // （如果流已关闭，Promise 返回 { value: undefined, done: true } 形式）
             const { value, done } = await reader.read();
             if (done) {
-              console.log('done: ', responseText);
-              const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: responseText };
-              messagesTemp[latestReplyIndex] = { ...assistantMessageTemp };
-              const messagesTemp2 = messagesTemp.slice(-MAX_SEND_MESSAGES_COUNT);
-              setMessages(messagesTemp2);
               break;
             } else {
-              // 4. 将分块数据转换为 string
+              // 将分块数据转换为 string
               const responseTextPart = new TextDecoder().decode(value);
 
               // 通过正则表达式提取每个部分的 "content"
               const regex = /"content":"([^"]*)"/g;
-              const matches = [...(responseTextPart.matchAll(regex) as any)];
+              const matches = [...responseTextPart.matchAll(regex)];
 
               // 将所有匹配的 "content" 拼接成一个新的字符串
               const latestReplyPartTemp = matches.map((match) => match[1]).join('');
-              responseText += latestReplyPartTemp;
+              latestReplyTemp += latestReplyPartTemp;
+
+              const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: latestReplyTemp };
+              messagesTemp[latestReplyIndex] = { ...assistantMessageTemp };
+              const messagesTemp2 = messagesTemp.slice(-MAX_SEND_MESSAGES_COUNT);
+              setMessages(messagesTemp2);
             }
           }
         } else {
