@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .signle-line-ellipsis {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+}
+
 /* @layer base {
   .light {
     --card-shadow: 0px 2px 4px 0px rgb(0, 0, 0, 0.05);
