@@ -1,5 +1,6 @@
 import React, { FC, Fragment, useState } from 'react';
 import { messages as td_messages } from '@/assets/data/test';
+import Markdown from '@/components/Markdown';
 
 const Chat: FC = () => {
   const [messages, setMessages] = useState(td_messages);
@@ -17,10 +18,12 @@ const Chat: FC = () => {
       <div className="flex-1 overflow-x-hidden overflow-y-auto p-[20px] pb-[40px] relative overscroll-none">
         {messages.map((message, i) => {
           return (
-            <Fragment key={message.id}>
+            <Fragment key={i}>
               <div className="mb-4">
                 <div>{message.role}</div>
-                <div className="markdown">{message.content}</div>
+                <div className="markdown">
+                  <Markdown content={message.content} />
+                </div>
                 <div>{message.date.toString()}</div>
               </div>
             </Fragment>
