@@ -9,3 +9,5 @@
 /public/*
 
 pnpm-lock.yaml
+
+/src/assets/konwledge/*.md

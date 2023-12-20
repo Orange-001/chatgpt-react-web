@@ -112,3 +112,37 @@ body @media only screen and (max-width: 600px) {
   background-clip: content-box;
   border: 1px solid transparent;
 }
+
+pre {
+  position: relative;
+}
+
+pre:hover .copy-code-button {
+  pointer-events: all;
+  transform: translateX(0px);
+  opacity: 0.5;
+}
+
+pre .copy-code-button {
+  position: absolute;
+  right: 10px;
+  top: 1em;
+  cursor: pointer;
+  padding: 0px 5px;
+  background-color: var(--black);
+  color: var(--white);
+  border: var(--border-in-light);
+  border-radius: 10px;
+  transform: translateX(10px);
+  pointer-events: none;
+  opacity: 0;
+  transition: all ease 0.3s;
+}
+
+pre .copy-code-button:after {
+  content: 'copy';
+}
+
+pre .copy-code-button:hover {
+  opacity: 1;
+}
