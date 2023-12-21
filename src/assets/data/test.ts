@@ -1,4 +1,4 @@
-export const messages = Array.from({ length: 30 }, (_, i) => {
+export const messages = Array.from({ length: 20 }, (_, i) => {
   return [
     {
       id: 'pwlq9UGXesgwN4FylOy1q',
@@ -20,6 +20,15 @@ export const messages = Array.from({ length: 30 }, (_, i) => {
         '\n\n```json\n{\n  "cause": {\n    "name": "ConnectTimeoutError",\n    "code": "UND_ERR_CONNECT_TIMEOUT",\n    "message": "Connect Timeout Error"\n  }\n}\n```',
       streaming: false,
       model: 'gpt-3.5-turbo'
+    },
+    {
+      id: 'mEugzQ91LiXscGp1VYabc',
+      date: '2023/12/21 10:11:33',
+      role: 'assistant',
+      content:
+        '\n\n```mermaid\ngraph TD\nA[开始] -->|进行中| B(中间节点)\nB -->|完成| C[结束]\nB -->|中断| D[中断节点]',
+      streaming: false,
+      model: 'gpt-3.5-turbo'
     }
-  ][i % 3];
+  ][i % 4];
 });
