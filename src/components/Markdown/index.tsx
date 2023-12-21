@@ -8,7 +8,7 @@ import RehypeHighlight from 'rehype-highlight';
 import mermaid from 'mermaid';
 import { useDebouncedCallback } from 'use-debounce';
 import copy from 'copy-to-clipboard';
-import { Modal, Spin, message } from 'antd';
+import { Modal, message } from 'antd';
 import { ReactComponent as LoadingIcon } from '@/assets/icons/three-dots.svg';
 
 export const Mermaid: FC<{ code: string }> = (props) => {
@@ -146,19 +146,23 @@ const _MarkdownContent: FC<{ content: string }> = (props) => {
 
 export const MarkdownContent = React.memo(_MarkdownContent);
 
-const Markdown: FC<{ content: string; loading?: boolean; fontSize?: number } & React.DOMAttributes<HTMLDivElement>> = (
-  props
-) => {
+interface Markdown extends React.DOMAttributes<HTMLDivElement> {
+  content: string;
+  loading?: boolean;
+  fontSize?: number;
+}
+
+const Markdown: FC<Markdown> = (props) => {
   return (
     <div
       className="markdown-body"
       style={{
         fontSize: `${props.fontSize ?? 14}px`
       }}
+      onContextMenu={props.onContextMenu}
+      onDoubleClickCapture={props.onDoubleClickCapture}
     >
-      <Spin indicator={<LoadingIcon />} spinning={props.loading ?? false}>
-        <MarkdownContent content={props.content} />
-      </Spin>
+      {props.loading ? <LoadingIcon /> : <MarkdownContent content={props.content} />}
     </div>
   );
 };

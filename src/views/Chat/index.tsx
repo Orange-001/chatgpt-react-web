@@ -2,12 +2,14 @@ import React, { FC, Fragment, useState } from 'react';
 import { messages as td_messages } from '@/assets/data/test';
 import Markdown from '@/components/Markdown';
 
+import styles from './index.module.scss';
+
 const Chat: FC = () => {
   const [messages, setMessages] = useState(td_messages);
 
   return (
-    <>
-      <div className="flex justify-between items-center relative">
+    <div className={styles['chat']}>
+      <div className="window-header">
         <div className="text-[20px] font-bold max-w-[50vw]">
           <div>window-header-main-title</div>
           <div>window-header-sub-title</div>
@@ -15,28 +17,31 @@ const Chat: FC = () => {
         <div>window-actions</div>
       </div>
 
-      <div className="flex-1 overflow-x-hidden overflow-y-auto p-[20px] pb-[40px] relative overscroll-none">
+      <div className={styles['chat-body']}>
         {messages.map((message, i) => {
+          const isUser = message.role === 'user';
+
           return (
             <Fragment key={i}>
-              <div className="mb-4">
-                <div>{message.role}</div>
-                <div className="markdown">
-                  <Markdown content={message.content} />
+              <div className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
+                <div className={styles['chat-message-container']}>
+                  <div className={styles['chat-message-header']}>{message.role}</div>
+                  <div className={styles['chat-message-item']}>
+                    <Markdown
+                      content={message.content}
+                      loading={message.streaming && message.content.length === 0 && !isUser}
+                    />
+                  </div>
+                  <div className={styles['chat-message-action-date']}>{message.date.toString()}</div>
                 </div>
-                <div>{message.date.toString()}</div>
               </div>
             </Fragment>
           );
         })}
       </div>
 
-      <div className="relative w-full p-[20px] pt-[10px] box-border border-t-[1px] border-solid border-[#494949]">
-        chat-input-panel
-      </div>
-
-      {/* <button className="text-[var(--test-text-color)]">test</button> */}
-    </>
+      <div className={styles['chat-input-panel']}>chat-input-panel</div>
+    </div>
   );
 };
 
