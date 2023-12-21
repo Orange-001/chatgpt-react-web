@@ -8,7 +8,7 @@ const Chat: FC = () => {
   return (
     <>
       <div className="flex justify-between items-center relative">
-        <div className="text-[20px] font-bold signle-line-ellipsis max-w-[50vw]">
+        <div className="text-[20px] font-bold max-w-[50vw]">
           <div>window-header-main-title</div>
           <div>window-header-sub-title</div>
         </div>
