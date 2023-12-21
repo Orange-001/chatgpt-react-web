@@ -3,9 +3,19 @@ import { messages as td_messages } from '@/assets/data/test';
 import Markdown from '@/components/Markdown';
 
 import styles from './index.module.scss';
+import { Input } from 'antd';
+
+const PromptHints: FC = (props) => {
+  return <div>PromptHints</div>;
+};
+const ChatActions: FC = (props) => {
+  return <div>ChatActions</div>;
+};
 
 const Chat: FC = () => {
   const [messages, setMessages] = useState(td_messages);
+
+  const [userInput, setUserInput] = useState('');
 
   return (
     <div className={styles['chat']}>
@@ -40,7 +50,17 @@ const Chat: FC = () => {
         })}
       </div>
 
-      <div className={styles['chat-input-panel']}>chat-input-panel</div>
+      <div className={styles['chat-input-panel']}>
+        <PromptHints />
+        <ChatActions />
+        <div className={styles['chat-input-panel-inner']}>
+          <textarea
+            className={styles['chat-input']}
+            placeholder="Ctrl + Enter 发送，/ 触发补全，: 触发命令"
+            value={userInput}
+          />
+        </div>
+      </div>
     </div>
   );
 };
