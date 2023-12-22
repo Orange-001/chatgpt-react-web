@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useRef, useState } from 'react';
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react';
 import { messages as td_messages } from '@/assets/data/test';
 import Markdown from '@/components/Markdown';
 
@@ -69,7 +69,37 @@ const ChatAction: FC<{ text: string; icon: JSX.Element; onClick: () => void }> =
   );
 };
 
-const ChatActions: FC = (props) => {
+function useScrollToBottom() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [autoScroll, setAutoScroll] = useState(true);
+
+  function scrollDomToBottom() {
+    const dom = scrollRef.current;
+    if (dom) {
+      requestAnimationFrame(() => {
+        setAutoScroll(true);
+        dom.scrollTo(0, dom.scrollHeight);
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (autoScroll) {
+      scrollDomToBottom();
+    }
+  });
+
+  return {
+    scrollRef,
+    autoScroll,
+    setAutoScroll,
+    scrollDomToBottom
+  };
+}
+
+const ChatActions: FC<{
+  scrollToBottom: () => void;
+}> = (props) => {
   return (
     <div className={styles['chat-input-actions']}>
       <ChatAction
@@ -79,13 +109,7 @@ const ChatActions: FC = (props) => {
         text={'停止响应'}
         icon={<StopIcon />}
       />
-      <ChatAction
-        onClick={() => {
-          console.log('滚到最新');
-        }}
-        text={'滚到最新'}
-        icon={<BottomIcon />}
-      />
+      <ChatAction onClick={props.scrollToBottom} text={'滚到最新'} icon={<BottomIcon />} />
       <ChatAction
         onClick={() => {
           console.log('对话设置');
@@ -137,6 +161,7 @@ const Chat: FC = () => {
 
   const [userInput, setUserInput] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
   const isMobileScreen = useMobileScreen();
 
   function onInput(text: string) {
@@ -153,7 +178,7 @@ const Chat: FC = () => {
   }
 
   function scrollToBottom() {
-    console.log('scrollToBottom');
+    scrollDomToBottom();
   }
 
   return (
@@ -166,7 +191,7 @@ const Chat: FC = () => {
         <div>window-actions</div>
       </div>
 
-      <div className={styles['chat-body']}>
+      <div ref={scrollRef} className={styles['chat-body']}>
         {messages.map((message, i) => {
           const isUser = message.role === 'user';
 
@@ -191,7 +216,7 @@ const Chat: FC = () => {
 
       <div className={styles['chat-input-panel']}>
         <PromptHints />
-        <ChatActions />
+        <ChatActions scrollToBottom={scrollToBottom} />
         <div className={styles['chat-input-panel-inner']}>
           <Input.TextArea
             ref={inputRef}
