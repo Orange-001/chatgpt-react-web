@@ -487,8 +487,12 @@
   outline: none;
   box-sizing: border-box;
   min-height: 68px;
+  &::placeholder {
+    color: #707070;
+  }
 }
 
+.chat-input:hover,
 .chat-input:focus {
   border: 1px solid var(--primary);
 }
