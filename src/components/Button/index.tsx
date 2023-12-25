@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import classnames from 'classnames';
-import styles from './index.module.scss';
+import classnames from "classnames";
+import styles from "./index.module.scss";
 
-export type ButtonType = 'primary' | 'danger' | null;
+export type ButtonType = "primary" | "danger" | null;
 
 export function IconButton(props: {
   onClick?: () => void;
@@ -21,21 +21,28 @@ export function IconButton(props: {
   return (
     <button
       className={classnames(
-        styles['icon-button'],
+        styles["icon-button"],
         props.bordered && styles.border,
         props.shadow && styles.shadow,
         props.className,
-        'clickable',
-        styles[props.type ?? '']
+        "clickable",
+        styles[props.type ?? ""],
       )}
     >
       {props.icon && (
-        <div className={classnames(styles['icon-button-icon'], props.type === 'primary' && 'no-dark')}>
+        <div
+          className={classnames(
+            styles["icon-button-icon"],
+            props.type === "primary" && "no-dark",
+          )}
+        >
           {props.icon}
         </div>
       )}
 
-      {props.text && <div className={styles['icon-button-text']}>{props.text}</div>}
+      {props.text && (
+        <div className={styles["icon-button-text"]}>{props.text}</div>
+      )}
     </button>
   );
 }

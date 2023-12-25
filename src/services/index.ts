@@ -1,14 +1,14 @@
-import axios, { type HttpStatusCode } from 'axios';
-import { message } from 'antd';
+import axios, { type HttpStatusCode } from "axios";
+import { message } from "antd";
 
 const { REACT_APP_BASE_URL, REACT_APP_OPENAI_KEY } = process.env;
 
 const request = axios.create({
   baseURL: REACT_APP_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${REACT_APP_OPENAI_KEY}`
-  }
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${REACT_APP_OPENAI_KEY}`,
+  },
 });
 
 request.interceptors.request.use(
@@ -18,7 +18,7 @@ request.interceptors.request.use(
   (err) => {
     message.error(err.message);
     return Promise.reject(err);
-  }
+  },
 );
 
 request.interceptors.response.use(
@@ -36,7 +36,7 @@ request.interceptors.response.use(
         message.error(msg);
     }
     return Promise.reject(err);
-  }
+  },
 );
 
 export default request;

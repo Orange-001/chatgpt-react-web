@@ -1,24 +1,29 @@
-import React, { FC, useState } from 'react';
-import { NavLink, useRoutes } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/redux-store';
-import { Button, Space, Input, Form, message, Upload } from 'antd';
-import { decrement, increment } from '@/redux-store/features/counter';
-import request from '@/services';
-import type { UploadProps } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import type { AxiosProgressEvent } from 'axios';
-import { EventStreamContentType, fetchEventSource } from '@fortaine/fetch-event-source';
-import routes from '@/router';
+import React, { FC, useState } from "react";
+import { NavLink, useRoutes } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux-store";
+import { Button, Space, Input, Form, message, Upload } from "antd";
+import { decrement, increment } from "@/redux-store/features/counter";
+import request from "@/services";
+import type { UploadProps } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import type { AxiosProgressEvent } from "axios";
+import {
+  EventStreamContentType,
+  fetchEventSource,
+} from "@fortaine/fetch-event-source";
+import routes from "@/router";
 
 const Test: FC = () => {
-  const { value: counterValue } = useSelector((state: RootState) => state.counter);
+  const { value: counterValue } = useSelector(
+    (state: RootState) => state.counter,
+  );
   const dispatch = useDispatch<AppDispatch>();
 
   enum Role {
-    SYSTEM = 'system',
-    USER = 'user',
-    ASSISTANT = 'assistant'
+    SYSTEM = "system",
+    USER = "user",
+    ASSISTANT = "assistant",
   }
   type Message = {
     role: Role;
@@ -32,7 +37,7 @@ const Test: FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const onMessageKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.ctrlKey && e.key === 'Enter') {
+    if (e.ctrlKey && e.key === "Enter") {
       form.submit();
     }
   };
@@ -41,15 +46,20 @@ const Test: FC = () => {
     if (values.message) {
       const MAX_SEND_MESSAGES_COUNT = 4;
       const controller = new AbortController();
-      const userMessageTemp: Message = { role: Role.USER, content: values.message };
-      const messagesTemp = [...messages, userMessageTemp].slice(-MAX_SEND_MESSAGES_COUNT);
+      const userMessageTemp: Message = {
+        role: Role.USER,
+        content: values.message,
+      };
+      const messagesTemp = [...messages, userMessageTemp].slice(
+        -MAX_SEND_MESSAGES_COUNT,
+      );
       const latestReplyIndex = messagesTemp.length;
       setMessages(messagesTemp);
 
       const data = {
-        model: 'gpt-3.5-turbo',
+        model: "gpt-3.5-turbo",
         messages: messagesTemp,
-        stream: true
+        stream: true,
       };
 
       try {
@@ -129,20 +139,20 @@ const Test: FC = () => {
         // #region 方式三：@fortaine/fetch-event-source
         const { REACT_APP_BASE_URL, REACT_APP_OPENAI_KEY } = process.env;
         const fetchUrl = `${REACT_APP_BASE_URL}/v1/chat/completions`;
-        let remainText = '';
+        let remainText = "";
 
         fetchEventSource(fetchUrl, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'x-requested-with': 'XMLHttpRequest',
-            Authorization: `Bearer ${REACT_APP_OPENAI_KEY}`
+            "Content-Type": "application/json",
+            "x-requested-with": "XMLHttpRequest",
+            Authorization: `Bearer ${REACT_APP_OPENAI_KEY}`,
           },
           body: JSON.stringify(data),
           signal: controller.signal,
           // async onopen(res) {},
           onmessage(msg) {
-            if (msg.data === '[DONE]') {
+            if (msg.data === "[DONE]") {
               return;
             }
             const text = msg.data;
@@ -157,15 +167,20 @@ const Test: FC = () => {
               const delta = json.choices[0]?.delta?.content;
               if (delta) {
                 remainText += delta;
-                const assistantMessageTemp: Message = { role: Role.ASSISTANT, content: remainText };
+                const assistantMessageTemp: Message = {
+                  role: Role.ASSISTANT,
+                  content: remainText,
+                };
                 messagesTemp[latestReplyIndex] = { ...assistantMessageTemp };
-                const messagesTemp2 = messagesTemp.slice(-MAX_SEND_MESSAGES_COUNT);
+                const messagesTemp2 = messagesTemp.slice(
+                  -MAX_SEND_MESSAGES_COUNT,
+                );
                 setMessages(messagesTemp2);
               }
             } catch (error) {
-              console.log('[Request] parse error', text);
+              console.log("[Request] parse error", text);
             }
-          }
+          },
           // onclose() {},
           // onerror(err) {}
         });
@@ -174,26 +189,26 @@ const Test: FC = () => {
         console.error(error);
       }
     } else {
-      message.warning('Please Input your message!');
+      message.warning("Please Input your message!");
     }
   };
 
   const props: UploadProps = {
-    name: 'file',
+    name: "file",
     action: `${process.env.REACT_APP_BASE_URL}/v1/files`,
     headers: {
-      Authorization: `Bearer ${process.env.REACT_APP_OPENAI_KEY}`
+      Authorization: `Bearer ${process.env.REACT_APP_OPENAI_KEY}`,
     },
     onChange(info) {
-      if (info.file.status !== 'uploading') {
+      if (info.file.status !== "uploading") {
         console.log(info.file, info.fileList);
       }
-      if (info.file.status === 'done') {
+      if (info.file.status === "done") {
         message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === 'error') {
+      } else if (info.file.status === "error") {
         message.error(`${info.file.name} file upload failed.`);
       }
-    }
+    },
   };
 
   return (
