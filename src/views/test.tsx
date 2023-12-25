@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react';
 import { NavLink, useRoutes } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import { AppDispatch, RootState } from '@/redux-store';
 import { Button, Space, Input, Form, message, Upload } from 'antd';
-import { decrement, increment } from '@/store/features/counter';
+import { decrement, increment } from '@/redux-store/features/counter';
 import request from '@/services';
 import type { UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';

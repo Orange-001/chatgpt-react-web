@@ -156,7 +156,7 @@ const ChatActions: FC<{
   );
 };
 
-const Chat: FC = () => {
+const _Chat: FC = () => {
   const [messages, setMessages] = useState(td_messages);
 
   const [userInput, setUserInput] = useState('');
@@ -243,4 +243,7 @@ const Chat: FC = () => {
   );
 };
 
+const Chat: FC = () => {
+  return <_Chat />;
+};
 export default Chat;
